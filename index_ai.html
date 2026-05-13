@@ -3,237 +3,242 @@
 
 <head>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
     <style>
+
         html,
         body {
 
             margin: 0;
             padding: 0;
 
-            overflow: hidden;
-
             background: black;
-
-            touch-action: none;
-
-            font-family: sans-serif;
-        }
-
-        video {
-
-            position: absolute;
-
-            width: 100vw;
-            height: 100vh;
-
-            object-fit: cover;
-
-            top: 0;
-            left: 0;
-
-            background: black;
-
-            will-change: transform;
-
-            pointer-events: none;
-        }
-
-        #label {
-
-            position: fixed;
-
-            top: 10px;
-            left: 10px;
 
             color: white;
 
-            background: rgba(0, 0, 0, 0.45);
+            font-family: sans-serif;
 
-            padding: 10px 14px;
+            touch-action: manipulation;
 
-            border-radius: 12px;
+            height: 100%;
 
-            z-index: 1000;
-
-            font-size: 18px;
-
-            font-weight: bold;
+            overflow: hidden;
         }
 
-        /* ----------------------------- */
-        /* RECORD PANEL */
-        /* ----------------------------- */
-
-        #recordPanel {
-
-            position: fixed;
-
-            top: 10px;
-            right: 10px;
-
-            z-index: 1000;
+        body {
 
             display: flex;
 
             flex-direction: column;
 
-            gap: 14px;
+            justify-content: center;
 
-            width: 210px;
+            align-items: center;
+
+            gap: 22px;
+
+            padding: 20px;
+
+            box-sizing: border-box;
         }
 
-        #recordPanel button {
+        button {
 
-            min-height: 78px;
+            width: 100%;
 
-            font-size: 19px;
+            max-width: 500px;
 
-            border-radius: 20px;
+            min-height: 90px;
 
             border: none;
 
-            background: rgba(255, 255, 255, 0.94);
+            border-radius: 22px;
 
-            color: black;
+            font-size: 24px;
 
             font-weight: bold;
 
-            padding: 14px;
+            background: white;
 
-            touch-action: manipulation;
+            color: black;
+
+            box-shadow:
+                0 8px 24px rgba(0,0,0,0.35);
         }
 
-        #recordPanel button:active {
+        button:active {
 
-            transform: scale(0.97);
+            transform: scale(0.98);
 
         }
-
-        /* ----------------------------- */
-        /* SENSOR PANEL */
-        /* ----------------------------- */
 
         #sensorPanel {
 
-            position: fixed;
+            width: 100%;
 
-            bottom: 10px;
-            left: 10px;
-            right: 10px;
+            max-width: 500px;
 
-            z-index: 1000;
-        }
+            background: rgba(255,255,255,0.08);
 
-        #sensorNumbers {
+            border-radius: 20px;
 
-            background: rgba(0, 0, 0, 0.45);
+            padding: 18px;
 
-            padding: 12px;
-
-            border-radius: 12px;
-
-            margin-bottom: 8px;
+            box-sizing: border-box;
 
             font-family: monospace;
 
             line-height: 1.8;
 
-            color: white;
-
-            font-size: 15px;
+            font-size: 18px;
         }
 
-        .sensorLine {
+        .line {
 
             display: flex;
 
             justify-content: space-between;
         }
 
-        .accelText {
+        .accel {
 
-            color: #ff4d4d;
+            color: #ff6b6b;
         }
 
-        .gyroText {
+        .gyro {
 
-            color: #4da6ff;
+            color: #74b9ff;
         }
 
-        .stateText {
+        .state {
 
             color: #7dff7d;
         }
 
-        #motionGraph {
+        #status {
 
-            width: 100%;
-            height: 120px;
+            font-size: 20px;
 
-            background: rgba(0, 0, 0, 0.35);
+            font-weight: bold;
 
-            border-radius: 10px;
+            color: #ffe66d;
         }
+
     </style>
 
 </head>
 
 <body>
 
-    <!-- LABEL -->
+    <button onclick="startWalking()">
+        RECORD WALKING
+    </button>
 
-    <div id="label">
+    <button onclick="startStill()">
+        RECORD NOT WALKING
+    </button>
+
+    <button onclick="pauseRecording()">
+        PAUSE RECORDING
+    </button>
+
+    <button onclick="resetRecording()">
+        RESET RECORDING
+    </button>
+
+    <button onclick="downloadRecording()">
+        DOWNLOAD RECORDS
+    </button>
+
+    <div id="status">
         READY
     </div>
 
-    <!-- RECORD PANEL -->
-
-    <div id="recordPanel">
-
-        <button onclick="startWalkingRecording()">
-            RECORD WALKING
-        </button>
-
-        <button onclick="startStillRecording()">
-            RECORD NOT WALKING
-        </button>
-
-        <button onclick="pauseRecording()">
-            PAUSE RECORDING
-        </button>
-
-        <button onclick="resetRecording()">
-            RESET RECORDING
-        </button>
-
-        <button onclick="downloadLog()">
-            DOWNLOAD RECORDS
-        </button>
-
-    </div>
-
-    <!-- SENSOR PANEL -->
-
     <div id="sensorPanel">
 
-        <div id="sensorNumbers"></div>
+        <div class="line accel">
+            <span>ACCEL</span>
+            <span id="accelValue">0</span>
+        </div>
 
-        <canvas id="motionGraph"></canvas>
+        <div class="line gyro">
+            <span>GYRO</span>
+            <span id="gyroValue">0</span>
+        </div>
+
+        <div class="line">
+            <span>SWIPES</span>
+            <span id="swipeValue">0</span>
+        </div>
+
+        <div class="line">
+            <span>ABSORPTION</span>
+            <span id="absorptionValue">0</span>
+        </div>
+
+        <div class="line state">
+            <span>STATE</span>
+            <span id="stateValue">paused</span>
+        </div>
 
     </div>
-
-    <!-- VIDEOS -->
-
-    <video id="current" muted playsinline></video>
-
-    <video id="next" muted playsinline></video>
 
     <script>
 
         // ---------------------------------
-        // IOS MOTION PERMISSION
+        // UI
+        // ---------------------------------
+
+        const status =
+            document.getElementById("status");
+
+        const accelValue =
+            document.getElementById("accelValue");
+
+        const gyroValue =
+            document.getElementById("gyroValue");
+
+        const swipeValue =
+            document.getElementById("swipeValue");
+
+        const absorptionValue =
+            document.getElementById("absorptionValue");
+
+        const stateValue =
+            document.getElementById("stateValue");
+
+        // ---------------------------------
+        // STATE
+        // ---------------------------------
+
+        let recording = false;
+
+        let currentState = "paused";
+
+        let swipeCount = 0;
+
+        let absorption = 0;
+
+        let sessionLog = [];
+
+        let recordingStartTime = 0;
+
+        // ---------------------------------
+        // SENSOR VALUES
+        // ---------------------------------
+
+        let accMagnitude = 0;
+
+        let gyroMagnitude = 0;
+
+        let smoothAcc = 0;
+
+        let smoothGyro = 0;
+
+        // ---------------------------------
+        // IOS PERMISSION
         // ---------------------------------
 
         async function enableMotion() {
@@ -260,20 +265,6 @@
 
                     console.log(permission);
 
-                    if (permission === "granted") {
-
-                        label.innerText =
-                            "MOTION ENABLED";
-
-                    }
-
-                    else {
-
-                        label.innerText =
-                            "MOTION DENIED";
-
-                    }
-
                 }
 
             }
@@ -287,156 +278,34 @@
         }
 
         // ---------------------------------
-        // VIDEOS
-        // ---------------------------------
-
-        const videos = [
-
-            "videos/vid1.mp4",
-            "videos/vid2.mp4",
-            "videos/vid3.mp4",
-            "videos/vid4.mp4",
-            "videos/vid5.mp4",
-            "videos/vid6.mp4"
-
-        ];
-
-        // ---------------------------------
-        // ELEMENTS
-        // ---------------------------------
-
-        const label =
-            document.getElementById("label");
-
-        const sensorNumbers =
-            document.getElementById("sensorNumbers");
-
-        const canvas =
-            document.getElementById("motionGraph");
-
-        const ctx =
-            canvas.getContext("2d");
-
-        canvas.width =
-            window.innerWidth - 20;
-
-        canvas.height = 120;
-
-        let current =
-            document.getElementById("current");
-
-        let next =
-            document.getElementById("next");
-
-        // ---------------------------------
-        // VIDEO SETUP
-        // ---------------------------------
-
-        current.loop = true;
-        next.loop = true;
-
-        current.muted = true;
-        next.muted = true;
-
-        current.playsInline = true;
-        next.playsInline = true;
-
-        // ---------------------------------
-        // STATE
-        // ---------------------------------
-
-        let currentIndex = 0;
-
-        let swipeCount = 0;
-
-        let absorptionScore = 0;
-
-        let recording = false;
-
-        let walkingState = "paused";
-
-        let sessionLog = [];
-
-        // ---------------------------------
-        // SENSOR VALUES
-        // ---------------------------------
-
-        let accMagnitude = 0;
-
-        let rotMagnitude = 0;
-
-        let smoothAcc = 0;
-
-        let smoothRot = 0;
-
-        let accHistory = [];
-
-        let rotHistory = [];
-
-        const maxPoints = 500;
-
-        // ---------------------------------
-        // VIDEO START
-        // ---------------------------------
-
-        current.src = videos[0];
-
-        current.load();
-
-        current.play();
-
-        preload(1);
-
-        current.style.transform =
-            "translateY(0vh)";
-
-        next.style.transform =
-            "translateY(100vh)";
-
-        // ---------------------------------
-        // PRELOAD
-        // ---------------------------------
-
-        function preload(index) {
-
-            const file =
-                videos[index % videos.length];
-
-            next.preload = "auto";
-
-            next.src = file;
-
-            next.load();
-
-        }
-
-        // ---------------------------------
         // RECORDING CONTROLS
         // ---------------------------------
 
-        async function startWalkingRecording() {
+        async function startWalking() {
 
             await enableMotion();
 
             recording = true;
 
-            walkingState = "walking";
+            currentState = "walking";
 
-            label.innerText =
-                "RECORDING WALKING";
+            recordingStartTime = Date.now();
+
+            updateUI();
 
         }
 
-        async function startStillRecording() {
+        async function startStill() {
 
             await enableMotion();
 
             recording = true;
 
-            walkingState = "not walking";
+            currentState = "not walking";
 
-            label.innerText =
-                "RECORDING NOT WALKING";
+            recordingStartTime = Date.now();
+
+            updateUI();
 
         }
 
@@ -444,19 +313,17 @@
 
             recording = false;
 
-            walkingState = "paused";
+            currentState = "paused";
 
-            label.innerText =
-                "RECORDING PAUSED";
+            updateUI();
 
         }
 
         function resetRecording() {
 
             const confirmReset =
-                confirm(
-                    "Reset recording?"
-                );
+
+                confirm("Reset recording?");
 
             if (!confirmReset)
                 return;
@@ -465,8 +332,11 @@
 
             swipeCount = 0;
 
-            label.innerText =
-                "RECORDING RESET";
+            recording = false;
+
+            currentState = "paused";
+
+            updateUI();
 
         }
 
@@ -474,13 +344,31 @@
         // DOWNLOAD
         // ---------------------------------
 
-        function downloadLog() {
+        function downloadRecording() {
+
+            // REMOVE LAST 10 SECONDS
+
+            const trimmedLog =
+
+                sessionLog.filter(entry => {
+
+                    return (
+
+                        entry.time
+
+                        <
+
+                        Date.now() - 10000
+
+                    );
+
+                });
 
             const sessionName = prompt(
 
                 "Session name?",
 
-                "scroll_session"
+                "session"
 
             );
 
@@ -488,7 +376,7 @@
 
                 [
                     JSON.stringify(
-                        sessionLog,
+                        trimmedLog,
                         null,
                         2
                     )
@@ -514,13 +402,67 @@
         }
 
         // ---------------------------------
-        // SENSOR SAMPLING
+        // UI UPDATE
+        // ---------------------------------
+
+        function updateUI() {
+
+            status.innerText =
+
+                recording
+                    ? "RECORDING"
+                    : "PAUSED";
+
+            stateValue.innerText =
+                currentState;
+
+        }
+
+        // ---------------------------------
+        // ABSORPTION
+        // ---------------------------------
+
+        function computeAbsorption() {
+
+            const stillness =
+
+                Math.max(
+                    0,
+                    20 - smoothAcc
+                );
+
+            const motionlessness =
+
+                Math.max(
+                    0,
+                    10 - smoothGyro
+                );
+
+            absorption =
+
+                stillness * 2
+                + motionlessness * 2
+                + swipeCount * 0.2;
+
+            absorption =
+
+                Math.min(
+                    100,
+                    absorption
+                );
+
+        }
+
+        // ---------------------------------
+        // SENSOR LISTENER
         // ---------------------------------
 
         let lastSensorUpdate = 0;
 
         window.addEventListener(
+
             "devicemotion",
+
             e => {
 
                 const now = Date.now();
@@ -531,10 +473,16 @@
 
                 lastSensorUpdate = now;
 
-                // ACCELEROMETER
+                // -------------------------
+                // ACCEL
+                // -------------------------
 
                 const acc =
-                    e.accelerationIncludingGravity;
+
+                    e.accelerationIncludingGravity
+                    ||
+
+                    e.acceleration;
 
                 if (acc) {
 
@@ -552,128 +500,109 @@
 
                 }
 
-                // GYROSCOPE
+                // -------------------------
+                // GYRO
+                // -------------------------
 
                 const rot =
                     e.rotationRate;
 
                 if (rot) {
 
-                    const x = rot.alpha || 0;
-                    const y = rot.beta || 0;
-                    const z = rot.gamma || 0;
+                    const a =
+                        rot.alpha || 0;
 
-                    rotMagnitude = Math.sqrt(
+                    const b =
+                        rot.beta || 0;
 
-                        x * x +
-                        y * y +
-                        z * z
+                    const g =
+                        rot.gamma || 0;
+
+                    gyroMagnitude = Math.sqrt(
+
+                        a * a +
+                        b * b +
+                        g * g
 
                     );
 
                 }
 
+                // -------------------------
                 // SMOOTHING
+                // -------------------------
 
                 smoothAcc =
 
                     smoothAcc * 0.9
                     + accMagnitude * 0.1;
 
-                smoothRot =
+                smoothGyro =
 
-                    smoothRot * 0.9
-                    + rotMagnitude * 0.1;
-
-                // HISTORY
-
-                accHistory.push(smoothAcc);
-
-                rotHistory.push(smoothRot);
-
-                if (accHistory.length > maxPoints) {
-
-                    accHistory.shift();
-
-                    rotHistory.shift();
-
-                }
-
-                // ABSORPTION
+                    smoothGyro * 0.9
+                    + gyroMagnitude * 0.1;
 
                 computeAbsorption();
 
+                // -------------------------
                 // DISPLAY
+                // -------------------------
 
-                sensorNumbers.innerHTML = `
+                accelValue.innerText =
+                    smoothAcc.toFixed(2);
 
-<div class="sensorLine accelText">
+                gyroValue.innerText =
+                    smoothGyro.toFixed(2);
 
-<span>ACCEL</span>
+                swipeValue.innerText =
+                    swipeCount;
 
-<span>${smoothAcc.toFixed(2)}</span>
-
-</div>
-
-<div class="sensorLine gyroText">
-
-<span>GYRO</span>
-
-<span>${smoothRot.toFixed(2)}</span>
-
-</div>
-
-<div class="sensorLine">
-
-<span>SWIPES</span>
-
-<span>${swipeCount}</span>
-
-</div>
-
-<div class="sensorLine">
-
-<span>ABSORPTION</span>
-
-<span>${absorptionScore.toFixed(1)}</span>
-
-</div>
-
-<div class="sensorLine stateText">
-
-<span>STATE</span>
-
-<span>${walkingState}</span>
-
-</div>
-
-                `;
+                absorptionValue.innerText =
+                    absorption.toFixed(1);
 
             }
+
         );
 
         // ---------------------------------
-        // ABSORPTION
+        // TOUCH / SWIPE COUNT
         // ---------------------------------
 
-        function computeAbsorption() {
+        let touchStartY = 0;
 
-            const stillness =
-                Math.max(0, 20 - smoothAcc);
+        document.addEventListener(
 
-            const motionlessness =
-                Math.max(0, 10 - smoothRot);
+            "touchstart",
 
-            absorptionScore =
+            e => {
 
-                stillness * 2
-                + motionlessness * 2
-                + swipeCount * 0.2;
+                touchStartY =
+                    e.touches[0].clientY;
 
-            absorptionScore =
-                Math.min(100, absorptionScore);
+            }
 
-        }
+        );
+
+        document.addEventListener(
+
+            "touchend",
+
+            e => {
+
+                const dy =
+
+                    e.changedTouches[0].clientY
+                    - touchStartY;
+
+                if (dy < -80) {
+
+                    swipeCount++;
+
+                }
+
+            }
+
+        );
 
         // ---------------------------------
         // AUTO LOGGING
@@ -684,19 +613,36 @@
             if (!recording)
                 return;
 
+            // REMOVE FIRST 10 SECONDS
+
+            if (
+
+                Date.now()
+                - recordingStartTime
+
+                <
+
+                10000
+
+            ) {
+
+                return;
+
+            }
+
             const entry = {
 
                 time: Date.now(),
 
                 accel: smoothAcc,
 
-                gyro: smoothRot,
+                gyro: smoothGyro,
 
                 swipeCount,
 
-                absorption: absorptionScore,
+                absorption,
 
-                state: walkingState
+                state: currentState
 
             };
 
@@ -705,217 +651,6 @@
             console.log(entry);
 
         }, 1000);
-
-        // ---------------------------------
-        // GRAPH
-        // ---------------------------------
-
-        function drawGraph() {
-
-            ctx.clearRect(
-                0,
-                0,
-                canvas.width,
-                canvas.height
-            );
-
-            // ACCEL GRAPH
-
-            ctx.beginPath();
-
-            ctx.strokeStyle = "#ff4d4d";
-
-            ctx.lineWidth = 2;
-
-            accHistory.forEach((v, i) => {
-
-                const y =
-                    canvas.height - (v * 4);
-
-                if (i === 0) {
-
-                    ctx.moveTo(i, y);
-
-                }
-
-                else {
-
-                    ctx.lineTo(i, y);
-
-                }
-
-            });
-
-            ctx.stroke();
-
-            // GYRO GRAPH
-
-            ctx.beginPath();
-
-            ctx.strokeStyle = "#4da6ff";
-
-            ctx.lineWidth = 2;
-
-            rotHistory.forEach((v, i) => {
-
-                const y =
-                    canvas.height - (v * 10);
-
-                if (i === 0) {
-
-                    ctx.moveTo(i, y);
-
-                }
-
-                else {
-
-                    ctx.lineTo(i, y);
-
-                }
-
-            });
-
-            ctx.stroke();
-
-            requestAnimationFrame(drawGraph);
-
-        }
-
-        drawGraph();
-
-        // ---------------------------------
-        // DRAGGING
-        // ---------------------------------
-
-        let dragging = false;
-
-        let startY = 0;
-
-        let currentY = 0;
-
-        document.addEventListener(
-            "touchstart",
-            e => {
-
-                dragging = true;
-
-                startY =
-                    e.touches[0].clientY;
-
-                currentY = startY;
-
-                current.style.transition =
-                    "none";
-
-                next.style.transition =
-                    "none";
-
-            }
-        );
-
-        document.addEventListener(
-            "touchmove",
-            e => {
-
-                if (!dragging) return;
-
-                currentY =
-                    e.touches[0].clientY;
-
-                let deltaY =
-                    currentY - startY;
-
-                if (deltaY < 0) {
-
-                    current.style.transform =
-
-                        `translateY(${deltaY}px)`;
-
-                    next.style.transform =
-
-                        `translateY(${window.innerHeight + deltaY}px)`;
-
-                }
-
-            }
-        );
-
-        document.addEventListener(
-            "touchend",
-            e => {
-
-                dragging = false;
-
-                let dy =
-
-                    e.changedTouches[0].clientY
-                    - startY;
-
-                current.style.transition =
-                    "transform 0.3s ease";
-
-                next.style.transition =
-                    "transform 0.3s ease";
-
-                const swipeThreshold = 120;
-
-                if (dy < -swipeThreshold) {
-
-                    swipeCount++;
-
-                    current.style.transform =
-                        "translateY(-100vh)";
-
-                    next.style.transform =
-                        "translateY(0vh)";
-
-                    setTimeout(() => {
-
-                        let temp = current;
-
-                        current = next;
-
-                        next = temp;
-
-                        current.style.transition =
-                            "none";
-
-                        next.style.transition =
-                            "none";
-
-                        current.style.transform =
-                            "translateY(0vh)";
-
-                        next.style.transform =
-                            "translateY(100vh)";
-
-                        currentIndex =
-
-                            (currentIndex + 1)
-                            % videos.length;
-
-                        preload(currentIndex + 1);
-
-                        current.currentTime = 0;
-
-                        current.play();
-
-                    }, 300);
-
-                }
-
-                else {
-
-                    current.style.transform =
-                        "translateY(0vh)";
-
-                    next.style.transform =
-                        "translateY(100vh)";
-
-                }
-
-            }
-        );
 
     </script>
 
