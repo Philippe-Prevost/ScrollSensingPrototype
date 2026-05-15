@@ -37,9 +37,9 @@
 
             align-items: center;
 
-            gap: 18px;
+            gap: 14px;
 
-            padding: 18px;
+            padding: 14px;
 
             box-sizing: border-box;
         }
@@ -58,27 +58,24 @@
 
             grid-template-columns: 1fr 1fr;
 
-            gap: 12px;
+            gap: 10px;
         }
 
         button {
 
-            min-height: 84px;
+            min-height: 72px;
 
             border: none;
 
-            border-radius: 20px;
+            border-radius: 18px;
 
-            font-size: 22px;
+            font-size: 20px;
 
             font-weight: bold;
 
             background: white;
 
             color: black;
-
-            box-shadow:
-                0 8px 24px rgba(0,0,0,0.35);
         }
 
         button:active {
@@ -91,59 +88,65 @@
         /* STATUS */
         /* ----------------------------- */
 
-        #status {
-
-            font-size: 22px;
-
-            font-weight: bold;
-
-            color: #ffe66d;
-        }
-
-        /* ----------------------------- */
-        /* SENSOR PANEL */
-        /* ----------------------------- */
-
-        #sensorPanel {
+        #statusLine {
 
             width: 100%;
 
             max-width: 500px;
 
-            background: rgba(255,255,255,0.08);
+            display: flex;
 
-            border-radius: 20px;
+            justify-content: space-between;
 
-            padding: 18px;
+            align-items: center;
 
-            box-sizing: border-box;
+            font-size: 20px;
 
-            font-family: monospace;
-
-            font-size: 18px;
+            font-weight: bold;
         }
 
-        #sensorGrid {
+        #status {
+
+            color: #ffe66d;
+        }
+
+        #countdown {
+
+            color: white;
+        }
+
+        /* ----------------------------- */
+        /* SENSOR LINE */
+        /* ----------------------------- */
+
+        #sensorLine {
+
+            width: 100%;
+
+            max-width: 500px;
 
             display: grid;
 
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns:
+                1fr 1fr 1fr;
 
-            gap: 16px;
+            gap: 10px;
         }
 
         .dataBox {
 
-            background: rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.08);
 
             border-radius: 14px;
 
-            padding: 14px;
+            padding: 12px;
+
+            text-align: center;
         }
 
         .label {
 
-            font-size: 14px;
+            font-size: 12px;
 
             opacity: 0.7;
 
@@ -152,7 +155,7 @@
 
         .value {
 
-            font-size: 24px;
+            font-size: 22px;
 
             font-weight: bold;
         }
@@ -167,21 +170,9 @@
             color: #74b9ff;
         }
 
-        .absorption {
-
-            color: #ffe66d;
-        }
-
         .state {
 
             color: #7dff7d;
-        }
-
-        #countdown {
-
-            font-size: 18px;
-
-            opacity: 0.7;
         }
 
     </style>
@@ -190,7 +181,7 @@
 
 <body>
 
-    <!-- BUTTONS -->
+    <!-- LINE 1 -->
 
     <div id="buttonGrid">
 
@@ -212,79 +203,64 @@
 
     </div>
 
-    <!-- STATUS -->
+    <!-- LINE 2 -->
 
-    <div id="status">
-        READY
+    <div id="statusLine">
+
+        <div id="status">
+            READY
+        </div>
+
+        <div id="countdown">
+            00:00
+        </div>
+
     </div>
 
-    <div id="countdown">
-        00:00
-    </div>
+    <!-- LINE 3 -->
 
-    <!-- SENSOR PANEL -->
+    <div id="sensorLine">
 
-    <div id="sensorPanel">
+        <div class="dataBox">
 
-        <div id="sensorGrid">
+            <div class="label accel">
+                ACCEL
+            </div>
 
-            <div class="dataBox">
+            <div class="value accel"
+                id="accelValue">
 
-                <div class="label accel">
-                    ACCEL
-                </div>
-
-                <div class="value accel"
-                    id="accelValue">
-
-                    0
-
-                </div>
+                0
 
             </div>
 
-            <div class="dataBox">
+        </div>
 
-                <div class="label gyro">
-                    GYRO
-                </div>
+        <div class="dataBox">
 
-                <div class="value gyro"
-                    id="gyroValue">
+            <div class="label gyro">
+                GYRO
+            </div>
 
-                    0
+            <div class="value gyro"
+                id="gyroValue">
 
-                </div>
+                0
 
             </div>
 
-            <div class="dataBox">
+        </div>
 
-                <div class="label absorption">
-                    ABSORPTION
-                </div>
+        <div class="dataBox">
 
-                <div class="value absorption"
-                    id="absorptionValue">
-
-                    0
-
-                </div>
-
+            <div class="label state">
+                STATE
             </div>
 
-            <div class="dataBox">
+            <div class="value state"
+                id="stateValue">
 
-                <div class="label state">
-                    STATE
-                </div>
-
-                <div class="value state"
-                    id="stateValue">
-
-                    paused
-
-                </div>
+                paused
 
             </div>
 
@@ -310,9 +286,6 @@
         const gyroValue =
             document.getElementById("gyroValue");
 
-        const absorptionValue =
-            document.getElementById("absorptionValue");
-
         const stateValue =
             document.getElementById("stateValue");
 
@@ -323,8 +296,6 @@
         let recording = false;
 
         let currentState = "paused";
-
-        let absorption = 0;
 
         let sessionLog = [];
 
@@ -414,8 +385,6 @@
 
             updateUI();
 
-            // AUTO STOP AFTER 2m20s
-
             setTimeout(() => {
 
                 if (!recording)
@@ -424,7 +393,7 @@
                 recording = false;
 
                 status.innerText =
-                    "SESSION COMPLETE";
+                    "COMPLETE";
 
                 updateUI();
 
@@ -536,40 +505,6 @@
         }
 
         // ---------------------------------
-        // ABSORPTION
-        // ---------------------------------
-
-        function computeAbsorption() {
-
-            const stillness =
-
-                Math.max(
-                    0,
-                    20 - smoothAcc
-                );
-
-            const motionlessness =
-
-                Math.max(
-                    0,
-                    10 - smoothGyro
-                );
-
-            absorption =
-
-                stillness * 2
-                + motionlessness * 2;
-
-            absorption =
-
-                Math.min(
-                    100,
-                    absorption
-                );
-
-        }
-
-        // ---------------------------------
         // SENSOR LISTENER
         // ---------------------------------
 
@@ -589,9 +524,7 @@
 
                 lastSensorUpdate = now;
 
-                // -------------------------
                 // ACCEL
-                // -------------------------
 
                 const acc =
 
@@ -616,9 +549,7 @@
 
                 }
 
-                // -------------------------
                 // GYRO
-                // -------------------------
 
                 const rot =
                     e.rotationRate;
@@ -644,9 +575,7 @@
 
                 }
 
-                // -------------------------
                 // SMOOTHING
-                // -------------------------
 
                 smoothAcc =
 
@@ -658,24 +587,13 @@
                     smoothGyro * 0.9
                     + gyroMagnitude * 0.1;
 
-                // -------------------------
-                // ABSORPTION
-                // -------------------------
-
-                computeAbsorption();
-
-                // -------------------------
                 // DISPLAY
-                // -------------------------
 
                 accelValue.innerText =
                     smoothAcc.toFixed(2);
 
                 gyroValue.innerText =
                     smoothGyro.toFixed(2);
-
-                absorptionValue.innerText =
-                    absorption.toFixed(1);
 
             }
 
@@ -695,9 +613,6 @@
                 Date.now()
                 - recordingStartTime;
 
-            // 4Hz
-            // every 250ms
-
             const entry = {
 
                 time: Date.now(),
@@ -708,8 +623,6 @@
                 accel: smoothAcc,
 
                 gyro: smoothGyro,
-
-                absorption,
 
                 state: currentState
 
