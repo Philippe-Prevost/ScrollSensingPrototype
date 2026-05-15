@@ -37,9 +37,9 @@
 
             align-items: center;
 
-            gap: 20px;
+            gap: 18px;
 
-            padding: 20px;
+            padding: 18px;
 
             box-sizing: border-box;
         }
@@ -58,18 +58,18 @@
 
             grid-template-columns: 1fr 1fr;
 
-            gap: 14px;
+            gap: 12px;
         }
 
         button {
 
-            min-height: 88px;
+            min-height: 84px;
 
             border: none;
 
-            border-radius: 22px;
+            border-radius: 20px;
 
-            font-size: 24px;
+            font-size: 22px;
 
             font-weight: bold;
 
@@ -120,16 +120,41 @@
 
             font-family: monospace;
 
-            line-height: 1.8;
-
             font-size: 18px;
         }
 
-        .line {
+        #sensorGrid {
 
-            display: flex;
+            display: grid;
 
-            justify-content: space-between;
+            grid-template-columns: 1fr 1fr;
+
+            gap: 16px;
+        }
+
+        .dataBox {
+
+            background: rgba(255,255,255,0.05);
+
+            border-radius: 14px;
+
+            padding: 14px;
+        }
+
+        .label {
+
+            font-size: 14px;
+
+            opacity: 0.7;
+
+            margin-bottom: 6px;
+        }
+
+        .value {
+
+            font-size: 24px;
+
+            font-weight: bold;
         }
 
         .accel {
@@ -142,9 +167,21 @@
             color: #74b9ff;
         }
 
+        .absorption {
+
+            color: #ffe66d;
+        }
+
         .state {
 
             color: #7dff7d;
+        }
+
+        #countdown {
+
+            font-size: 18px;
+
+            opacity: 0.7;
         }
 
     </style>
@@ -181,33 +218,76 @@
         READY
     </div>
 
+    <div id="countdown">
+        00:00
+    </div>
+
     <!-- SENSOR PANEL -->
 
     <div id="sensorPanel">
 
-        <div class="line accel">
-            <span>ACCEL</span>
-            <span id="accelValue">0</span>
-        </div>
+        <div id="sensorGrid">
 
-        <div class="line gyro">
-            <span>GYRO</span>
-            <span id="gyroValue">0</span>
-        </div>
+            <div class="dataBox">
 
-        <div class="line">
-            <span>SWIPES</span>
-            <span id="swipeValue">0</span>
-        </div>
+                <div class="label accel">
+                    ACCEL
+                </div>
 
-        <div class="line">
-            <span>ABSORPTION</span>
-            <span id="absorptionValue">0</span>
-        </div>
+                <div class="value accel"
+                    id="accelValue">
 
-        <div class="line state">
-            <span>STATE</span>
-            <span id="stateValue">paused</span>
+                    0
+
+                </div>
+
+            </div>
+
+            <div class="dataBox">
+
+                <div class="label gyro">
+                    GYRO
+                </div>
+
+                <div class="value gyro"
+                    id="gyroValue">
+
+                    0
+
+                </div>
+
+            </div>
+
+            <div class="dataBox">
+
+                <div class="label absorption">
+                    ABSORPTION
+                </div>
+
+                <div class="value absorption"
+                    id="absorptionValue">
+
+                    0
+
+                </div>
+
+            </div>
+
+            <div class="dataBox">
+
+                <div class="label state">
+                    STATE
+                </div>
+
+                <div class="value state"
+                    id="stateValue">
+
+                    paused
+
+                </div>
+
+            </div>
+
         </div>
 
     </div>
@@ -221,14 +301,14 @@
         const status =
             document.getElementById("status");
 
+        const countdown =
+            document.getElementById("countdown");
+
         const accelValue =
             document.getElementById("accelValue");
 
         const gyroValue =
             document.getElementById("gyroValue");
-
-        const swipeValue =
-            document.getElementById("swipeValue");
 
         const absorptionValue =
             document.getElementById("absorptionValue");
@@ -244,13 +324,13 @@
 
         let currentState = "paused";
 
-        let swipeCount = 0;
-
         let absorption = 0;
 
         let sessionLog = [];
 
         let recordingStartTime = 0;
+
+        let recordingDuration = 140000;
 
         // ---------------------------------
         // SENSOR VALUES
@@ -265,7 +345,7 @@
         let smoothGyro = 0;
 
         // ---------------------------------
-        // IOS MOTION PERMISSION
+        // IOS PERMISSION
         // ---------------------------------
 
         async function enableMotion() {
@@ -305,49 +385,69 @@
         }
 
         // ---------------------------------
-        // RECORDING CONTROLS
+        // START RECORDING
         // ---------------------------------
 
         async function startWalking() {
 
-            await enableMotion();
-
-            recording = true;
-
-            currentState = "walking";
-
-            recordingStartTime = Date.now();
-
-            updateUI();
+            await startRecording("walking");
 
         }
 
         async function startStill() {
 
+            await startRecording("still");
+
+        }
+
+        async function startRecording(state) {
+
             await enableMotion();
+
+            sessionLog = [];
 
             recording = true;
 
-            currentState = "still";
+            currentState = state;
 
             recordingStartTime = Date.now();
 
             updateUI();
 
+            // AUTO STOP AFTER 2m20s
+
+            setTimeout(() => {
+
+                if (!recording)
+                    return;
+
+                recording = false;
+
+                status.innerText =
+                    "SESSION COMPLETE";
+
+                updateUI();
+
+            }, recordingDuration);
+
         }
+
+        // ---------------------------------
+        // RESET
+        // ---------------------------------
 
         function resetRecording() {
 
             const confirmReset =
 
-                confirm("Reset recording?");
+                confirm(
+                    "Reset recording?"
+                );
 
             if (!confirmReset)
                 return;
 
             sessionLog = [];
-
-            swipeCount = 0;
 
             recording = false;
 
@@ -363,19 +463,19 @@
 
         function downloadRecording() {
 
-            // REMOVE LAST 10 SECONDS
-
             const trimmedLog =
 
                 sessionLog.filter(entry => {
 
                     return (
 
-                        entry.time
+                        entry.timeSinceStart
+                        >= 10000
 
-                        <
+                        &&
 
-                        Date.now() - 10000
+                        entry.timeSinceStart
+                        <= 130000
 
                     );
 
@@ -458,8 +558,7 @@
             absorption =
 
                 stillness * 2
-                + motionlessness * 2
-                + swipeCount * 0.2;
+                + motionlessness * 2;
 
             absorption =
 
@@ -575,51 +674,8 @@
                 gyroValue.innerText =
                     smoothGyro.toFixed(2);
 
-                swipeValue.innerText =
-                    swipeCount;
-
                 absorptionValue.innerText =
                     absorption.toFixed(1);
-
-            }
-
-        );
-
-        // ---------------------------------
-        // SWIPE COUNT
-        // ---------------------------------
-
-        let touchStartY = 0;
-
-        document.addEventListener(
-
-            "touchstart",
-
-            e => {
-
-                touchStartY =
-                    e.touches[0].clientY;
-
-            }
-
-        );
-
-        document.addEventListener(
-
-            "touchend",
-
-            e => {
-
-                const dy =
-
-                    e.changedTouches[0].clientY
-                    - touchStartY;
-
-                if (dy < -80) {
-
-                    swipeCount++;
-
-                }
 
             }
 
@@ -634,32 +690,24 @@
             if (!recording)
                 return;
 
-            // REMOVE FIRST 10 SECONDS
-
-            if (
+            const elapsed =
 
                 Date.now()
-                - recordingStartTime
+                - recordingStartTime;
 
-                <
-
-                10000
-
-            ) {
-
-                return;
-
-            }
+            // 4Hz
+            // every 250ms
 
             const entry = {
 
                 time: Date.now(),
 
+                timeSinceStart:
+                    elapsed,
+
                 accel: smoothAcc,
 
                 gyro: smoothGyro,
-
-                swipeCount,
 
                 absorption,
 
@@ -671,7 +719,60 @@
 
             console.log(entry);
 
-        }, 1000);
+        }, 250);
+
+        // ---------------------------------
+        // COUNTDOWN
+        // ---------------------------------
+
+        setInterval(() => {
+
+            if (!recording) {
+
+                countdown.innerText =
+                    "00:00";
+
+                return;
+
+            }
+
+            const elapsed =
+
+                Date.now()
+                - recordingStartTime;
+
+            const remaining =
+
+                Math.max(
+                    0,
+                    recordingDuration - elapsed
+                );
+
+            const totalSeconds =
+
+                Math.floor(
+                    remaining / 1000
+                );
+
+            const minutes =
+
+                String(
+                    Math.floor(
+                        totalSeconds / 60
+                    )
+                ).padStart(2, "0");
+
+            const seconds =
+
+                String(
+                    totalSeconds % 60
+                ).padStart(2, "0");
+
+            countdown.innerText =
+
+                `${minutes}:${seconds}`;
+
+        }, 100);
 
     </script>
 
