@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+/>
+
+<title>
+Embodied Scrolling Recorder
+</title>
+
+<style>
+
+html,
+body {
+
+    margin: 0;
+    padding: 0;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+    background: #000;
+    color: white;
+
+    font-family: sans-serif;
+
+    touch-action: manipulation;
+
+}
+
+body {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: flex-start;
+
+    gap: 12px;
+
+    padding: 12px;
+
+    box-sizing: border-box;
+
+}
+
+#controls {
+
+    width: 100%;
+
+    max-width: 600px;
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 10px;
+
+}
+
+button {
+
+    min-height: 72px;
+
+    border: none;
+
+    border-radius: 16px;
+
+    font-size: 18px;
+
+    font-weight: bold;
+
+    background: white;
+
+    color: black;
+
+}
+
+button:active {
+
+    transform: scale(0.98);
+
+}
+
+#statusContainer {
+
+    width: 100%;
+
+    max-width: 600px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    font-size: 20px;
+
+    font-weight: bold;
+
+}
+
+#sensorGrid {
+
+    width: 100%;
+
+    max-width: 600px;
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 10px;
+
+}
+
+.sensorBox {
+
+    background: rgba(255,255,255,0.08);
+
+    border-radius: 14px;
+
+    padding: 10px;
+
+}
+
+.label {
+
+    font-size: 11px;
+
+    opacity: 0.7;
+
+    margin-bottom: 4px;
+
+}
+
+.value {
+
+    font-size: 20px;
+
+    font-weight: bold;
+
+}
+
+#scrollArea {
+
+    width: 100%;
+
+    max-width: 600px;
+
+    flex: 1;
+
+    overflow-y: scroll;
+
+    border-radius: 16px;
+
+    background: rgba(255,255,255,0.05);
+
+    padding: 14px;
+
+    box-sizing: border-box;
+
+}
+
+.card {
+
+    height: 200px;
+
+    margin-bottom: 14px;
+
+    border-radius: 20px;
+
+    background: linear-gradient(
+        135deg,
+        #1f1f1f,
+        #2d2d2d
+    );
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="controls">
+
+    <button onclick="startRecording('uncomfortable_full_attention')">
+        UNCOMFORTABLE
+    </button>
+
+    <button onclick="startRecording('relaxed_absorbed')">
+        RELAXED
+    </button>
+
+    <button onclick="downloadData()">
+        DOWNLOAD
+    </button>
+
+    <button onclick="resetData()">
+        RESET
+    </button>
+
+</div>
+
+<div id="statusContainer">
+
+    <div id="status">
+        READY
+    </div>
+
+    <div id="timer">
+        00:00
+    </div>
+
+</div>
+
+<div id="sensorGrid">
+
+    <div class="sensorBox">
+        <div class="label">
+            PHONE MOVEMENT ACCELERATION
+        </div>
+        <div class="value" id="accelDisplay">
+            0
+        </div>
+    </div>
+
+    <div class="sensorBox">
+        <div class="label">
+            PHONE ROTATION MOVEMENT
+        </div>
+        <div class="value" id="gyroDisplay">
+            0
+        </div>
+    </div>
+
+    <div class="sensorBox">
+        <div class="label">
+            FINGER SCROLL SPEED
+        </div>
+        <div class="value" id="scrollSpeedDisplay">
+            0
+        </div>
+    </div>
+
+    <div class="sensorBox">
+        <div class="label">
+            TIME BETWEEN SCROLL GESTURES
+        </div>
+        <div class="value" id="gestureDisplay">
+            0
+        </div>
+    </div>
+
+    <div class="sensorBox">
+        <div class="label">
+            INTERACTION RHYTHM REGULARITY
+        </div>
+        <div class="value" id="rhythmDisplay">
+            0
+        </div>
+    </div>
+
+    <div class="sensorBox">
+        <div class="label">
+            AMBIENT HUMAN VOICE PRESENCE
+        </div>
+        <div class="value" id="voiceDisplay">
+            NO
+        </div>
+    </div>
+
+</div>
+
+<div id="scrollArea"></div>
+
+<script>
+
+const scrollArea =
+    document.getElementById("scrollArea");
+
+for (let i = 0; i < 60; i++) {
+
+    const card =
+        document.createElement("div");
+
+    card.className = "card";
+
+    scrollArea.appendChild(card);
+
+}
+
+// ---------------------------------------------------
+// GLOBALS
+// ---------------------------------------------------
+
+let sessionData = [];
+
+let recording = false;
+
+let recordingLabel = "";
+
+let recordingStart = 0;
+
+let recordingDuration = 120000;
+
+let smoothAccel = 0;
+
+let smoothGyro = 0;
+
+let scrollSpeed = 0;
+
+let lastScrollTop = 0;
+
+let lastScrollTime = 0;
+
+let gestureInterval = 0;
+
+let interactionRhythmRegularity = 0;
+
+let scrollIntervals = [];
+
+let voiceDetected = false;
+
+let currentTouchStart = 0;
+
+let currentTouchDuration = 0;
+
+let pauseBeforeInteraction = 0;
+
+let lastInteractionTime = 0;
+
+// ---------------------------------------------------
+// UI
+// ---------------------------------------------------
+
+const status =
+    document.getElementById("status");
+
+const timer =
+    document.getElementById("timer");
+
+const accelDisplay =
+    document.getElementById("accelDisplay");
+
+const gyroDisplay =
+    document.getElementById("gyroDisplay");
+
+const scrollSpeedDisplay =
+    document.getElementById("scrollSpeedDisplay");
+
+const gestureDisplay =
+    document.getElementById("gestureDisplay");
+
+const rhythmDisplay =
+    document.getElementById("rhythmDisplay");
+
+const voiceDisplay =
+    document.getElementById("voiceDisplay");
+
+// ---------------------------------------------------
+// START RECORDING
+// ---------------------------------------------------
+
+async function startRecording(label) {
+
+    await enableSensors();
+
+    sessionData = [];
+
+    recording = true;
+
+    recordingLabel = label;
+
+    recordingStart = Date.now();
+
+    status.innerText =
+        "RECORDING";
+
+    setTimeout(() => {
+
+        recording = false;
+
+        status.innerText =
+            "COMPLETE";
+
+    }, recordingDuration);
+
+}
+
+// ---------------------------------------------------
+// RESET
+// ---------------------------------------------------
+
+function resetData() {
+
+    const ok =
+        confirm("Reset all data?");
+
+    if (!ok) return;
+
+    sessionData = [];
+
+    recording = false;
+
+    status.innerText =
+        "READY";
+
+}
+
+// ---------------------------------------------------
+// DOWNLOAD
+// ---------------------------------------------------
+
+function downloadData() {
+
+    const blob =
+        new Blob(
+
+            [
+                JSON.stringify(
+                    sessionData,
+                    null,
+                    2
+                )
+            ],
+
+            {
+                type: "application/json"
+            }
+
+        );
+
+    const a =
+        document.createElement("a");
+
+    a.href =
+        URL.createObjectURL(blob);
+
+    a.download =
+        `embodied_scrolling_data.json`;
+
+    a.click();
+
+}
+
+// ---------------------------------------------------
+// IOS SENSOR PERMISSION
+// ---------------------------------------------------
+
+async function enableSensors() {
+
+    try {
+
+        if (
+
+            typeof DeviceMotionEvent !==
+            "undefined"
+
+            &&
+
+            typeof DeviceMotionEvent
+                .requestPermission ===
+            "function"
+
+        ) {
+
+            await DeviceMotionEvent
+                .requestPermission();
+
+        }
+
+    }
+
+    catch(err) {
+
+        console.log(err);
+
+    }
+
+}
+
+// ---------------------------------------------------
+// MOTION
+// ---------------------------------------------------
+
+window.addEventListener(
+
+    "devicemotion",
+
+    e => {
+
+        const acc =
+
+            e.accelerationIncludingGravity
+            ||
+
+            e.acceleration;
+
+        if (acc) {
+
+            const x = acc.x || 0;
+            const y = acc.y || 0;
+            const z = acc.z || 0;
+
+            const magnitude = Math.sqrt(
+
+                x*x +
+                y*y +
+                z*z
+
+            );
+
+            smoothAccel =
+
+                smoothAccel * 0.9
+                + magnitude * 0.1;
+
+        }
+
+        const rot =
+            e.rotationRate;
+
+        if (rot) {
+
+            const a = rot.alpha || 0;
+            const b = rot.beta || 0;
+            const g = rot.gamma || 0;
+
+            const gyroMagnitude = Math.sqrt(
+
+                a*a +
+                b*b +
+                g*g
+
+            );
+
+            smoothGyro =
+
+                smoothGyro * 0.9
+                + gyroMagnitude * 0.1;
+
+        }
+
+        accelDisplay.innerText =
+            smoothAccel.toFixed(2);
+
+        gyroDisplay.innerText =
+            smoothGyro.toFixed(2);
+
+    }
+
+);
+
+// ---------------------------------------------------
+// TOUCH
+// ---------------------------------------------------
+
+scrollArea.addEventListener(
+
+    "touchstart",
+
+    () => {
+
+        currentTouchStart =
+            Date.now();
+
+        pauseBeforeInteraction =
+
+            Date.now()
+            - lastInteractionTime;
+
+    }
+
+);
+
+scrollArea.addEventListener(
+
+    "touchend",
+
+    () => {
+
+        currentTouchDuration =
+
+            Date.now()
+            - currentTouchStart;
+
+    }
+
+);
+
+// ---------------------------------------------------
+// SCROLL
+// ---------------------------------------------------
+
+scrollArea.addEventListener(
+
+    "scroll",
+
+    () => {
+
+        const now =
+            Date.now();
+
+        const top =
+            scrollArea.scrollTop;
+
+        const deltaY =
+            Math.abs(
+                top - lastScrollTop
+            );
+
+        const deltaT =
+            now - lastScrollTime;
+
+        scrollSpeed =
+
+            deltaY /
+            Math.max(deltaT, 1);
+
+        if (lastScrollTime !== 0) {
+
+            gestureInterval =
+                deltaT;
+
+            scrollIntervals.push(deltaT);
+
+            if (
+                scrollIntervals.length > 20
+            ) {
+
+                scrollIntervals.shift();
+
+            }
+
+            interactionRhythmRegularity =
+                calculateRegularity(
+                    scrollIntervals
+                );
+
+        }
+
+        lastScrollTop = top;
+
+        lastScrollTime = now;
+
+        lastInteractionTime = now;
+
+        scrollSpeedDisplay.innerText =
+            scrollSpeed.toFixed(2);
+
+        gestureDisplay.innerText =
+            gestureInterval;
+
+        rhythmDisplay.innerText =
+            interactionRhythmRegularity.toFixed(2);
+
+    }
+
+);
+
+// ---------------------------------------------------
+// RHYTHM
+// ---------------------------------------------------
+
+function calculateRegularity(arr) {
+
+    if (arr.length < 2)
+        return 0;
+
+    const mean =
+
+        arr.reduce(
+            (a,b)=>a+b,
+            0
+        ) / arr.length;
+
+    const variance =
+
+        arr.reduce(
+
+            (a,b)=> {
+
+                return a +
+                    Math.pow(
+                        b - mean,
+                        2
+                    );
+
+            },
+
+            0
+
+        ) / arr.length;
+
+    return 1 / (1 + variance);
+
+}
+
+// ---------------------------------------------------
+// MICROPHONE
+// ---------------------------------------------------
+
+async function startMicrophoneAnalysis() {
+
+    try {
+
+        const stream =
+
+            await navigator.mediaDevices
+                .getUserMedia({
+
+                    audio: true
+
+                });
+
+        const audioContext =
+            new AudioContext();
+
+        const source =
+            audioContext
+                .createMediaStreamSource(
+                    stream
+                );
+
+        const analyser =
+            audioContext
+                .createAnalyser();
+
+        source.connect(analyser);
+
+        const data =
+            new Uint8Array(
+                analyser.frequencyBinCount
+            );
+
+        setInterval(() => {
+
+            analyser
+                .getByteFrequencyData(
+                    data
+                );
+
+            let total = 0;
+
+            for (
+                let i = 0;
+                i < data.length;
+                i++
+            ) {
+
+                total += data[i];
+
+            }
+
+            const average =
+                total / data.length;
+
+            voiceDetected =
+                average > 25;
+
+            voiceDisplay.innerText =
+                voiceDetected
+                    ? "YES"
+                    : "NO";
+
+        }, 500);
+
+    }
+
+    catch(err) {
+
+        console.log(err);
+
+    }
+
+}
+
+startMicrophoneAnalysis();
+
+// ---------------------------------------------------
+// LOGGING
+// ---------------------------------------------------
+
+setInterval(() => {
+
+    if (!recording)
+        return;
+
+    const now =
+        Date.now();
+
+    const elapsed =
+        now - recordingStart;
+
+    const entry = {
+
+        timestamp: now,
+
+        recordingCondition:
+            recordingLabel,
+
+        sessionTimeElapsed:
+            elapsed,
+
+        // --------------------
+        // BODY
+        // --------------------
+
+        phoneMovementAcceleration:
+            smoothAccel,
+
+        phoneRotationMovement:
+            smoothGyro,
+
+        // --------------------
+        // TOUCH
+        // --------------------
+
+        fingerScrollSpeed:
+            scrollSpeed,
+
+        timeBetweenScrollGestures:
+            gestureInterval,
+
+        fingerContactDuration:
+            currentTouchDuration,
+
+        pauseBeforeNextInteraction:
+            pauseBeforeInteraction,
+
+        interactionRhythmRegularity:
+            interactionRhythmRegularity,
+
+        // --------------------
+        // CONTEXT
+        // --------------------
+
+        phoneBatteryLevel:
+            navigator.getBattery
+                ? "supported"
+                : "unsupported",
+
+        screenWidth:
+            window.innerWidth,
+
+        screenHeight:
+            window.innerHeight,
+
+        deviceOrientationAngle:
+            window.orientation || 0,
+
+        ambientHumanVoicePresence:
+            voiceDetected,
+
+        timeOfDay:
+            new Date()
+                .toLocaleTimeString(),
+
+        // --------------------
+        // LABELS
+        // --------------------
+
+        intendedEmbodiedState:
+            recordingLabel
+
+    };
+
+    sessionData.push(entry);
+
+    console.log(entry);
+
+}, 250);
+
+// ---------------------------------------------------
+// TIMER
+// ---------------------------------------------------
+
+setInterval(() => {
+
+    if (!recording) {
+
+        timer.innerText =
+            "00:00";
+
+        return;
+
+    }
+
+    const elapsed =
+
+        Date.now()
+        - recordingStart;
+
+    const remaining =
+
+        Math.max(
+            0,
+            recordingDuration - elapsed
+        );
+
+    const totalSeconds =
+
+        Math.floor(
+            remaining / 1000
+        );
+
+    const minutes =
+
+        String(
+            Math.floor(
+                totalSeconds / 60
+            )
+        ).padStart(2, "0");
+
+    const seconds =
+
+        String(
+            totalSeconds % 60
+        ).padStart(2, "0");
+
+    timer.innerText =
+        `${minutes}:${seconds}`;
+
+}, 100);
+
+</script>
+
+</body>
+</html>
