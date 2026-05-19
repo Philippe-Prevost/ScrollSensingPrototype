@@ -3,919 +3,914 @@
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+/>
 
-    <title>
-        Embodied TikTok Sensing Recorder
-    </title>
+<title>
+Embodied TikTok Sensing Recorder
+</title>
 
-    <style>
-        html,
-        body {
+<style>
 
-            margin: 0;
-            padding: 0;
+html,
+body {
 
-            width: 100%;
-            height: 100%;
+    margin: 0;
+    padding: 0;
 
-            overflow: hidden;
+    width: 100%;
+    height: 100%;
 
-            background: black;
+    overflow: hidden;
 
-            color: white;
+    background: black;
 
-            font-family: sans-serif;
+    color: white;
 
-        }
+    font-family: sans-serif;
 
-        body {
+}
 
-            display: flex;
+body {
 
-            flex-direction: column;
+    display: flex;
 
-            align-items: center;
+    flex-direction: column;
 
-            gap: 12px;
+    align-items: center;
 
-            padding: 12px;
+    gap: 12px;
 
-            box-sizing: border-box;
+    padding: 12px;
 
-        }
+    box-sizing: border-box;
 
-        #controls {
+}
 
-            width: 100%;
+#controls {
 
-            max-width: 650px;
+    width: 100%;
 
-            display: grid;
+    max-width: 650px;
 
-            grid-template-columns: 1fr 1fr;
+    display: grid;
 
-            gap: 10px;
+    grid-template-columns: 1fr 1fr;
 
-        }
+    gap: 10px;
 
-        button {
+}
 
-            min-height: 72px;
+button {
 
-            border: none;
+    min-height: 72px;
 
-            border-radius: 18px;
+    border: none;
 
-            font-size: 18px;
+    border-radius: 18px;
 
-            font-weight: bold;
+    font-size: 18px;
 
-            background: white;
+    font-weight: bold;
 
-            color: black;
+    background: white;
 
-        }
+    color: black;
 
-        button:active {
+}
 
-            transform: scale(0.98);
+button:active {
 
-        }
+    transform: scale(0.98);
 
-        #statusLine {
+}
 
-            width: 100%;
+#statusLine {
 
-            max-width: 650px;
+    width: 100%;
 
-            display: flex;
+    max-width: 650px;
 
-            justify-content: space-between;
+    display: flex;
 
-            align-items: center;
+    justify-content: space-between;
 
-            font-size: 22px;
+    align-items: center;
 
-            font-weight: bold;
+    font-size: 22px;
 
-        }
+    font-weight: bold;
 
-        #sensorGrid {
+}
 
-            width: 100%;
+#sensorGrid {
 
-            max-width: 650px;
+    width: 100%;
 
-            display: grid;
+    max-width: 650px;
 
-            grid-template-columns: 1fr 1fr;
+    display: grid;
 
-            gap: 10px;
+    grid-template-columns: 1fr 1fr;
 
-        }
+    gap: 10px;
 
-        .sensorBox {
+}
 
-            background: rgba(255, 255, 255, 0.08);
+.sensorBox {
 
-            border-radius: 16px;
+    background: rgba(255,255,255,0.08);
 
-            padding: 12px;
+    border-radius: 16px;
 
-        }
+    padding: 12px;
 
-        .label {
+}
 
-            font-size: 11px;
+.label {
 
-            opacity: 0.7;
+    font-size: 11px;
 
-            margin-bottom: 5px;
+    opacity: 0.7;
 
-        }
+    margin-bottom: 5px;
 
-        .value {
+}
 
-            font-size: 22px;
+.value {
 
-            font-weight: bold;
+    font-size: 22px;
 
-        }
+    font-weight: bold;
 
-        #instructions {
+}
 
-            width: 100%;
-
-            max-width: 650px;
-
-            background: rgba(255, 255, 255, 0.06);
-
-            border-radius: 16px;
-
-            padding: 14px;
-
-            box-sizing: border-box;
-
-            font-size: 15px;
-
-            line-height: 1.5;
-
-        }
-    </style>
+</style>
 
 </head>
 
 <body>
 
-    <div id="controls">
+<div id="controls">
 
-        <button onclick="startRecording('high_meta_awareness')">
+    <button
+        onclick="startRecording('high_meta_awareness')">
 
-            HIGH AWARENESS
+        HIGH AWARENESS
 
-        </button>
+    </button>
 
-        <button onclick="startRecording('immersed_absorption')">
+    <button
+        onclick="startRecording('immersed_absorption')">
 
-            IMMERSED
+        IMMERSED
 
-        </button>
+    </button>
 
-        <button onclick="downloadData()">
+    <button onclick="downloadData()">
 
-            DOWNLOAD
+        DOWNLOAD
 
-        </button>
+    </button>
 
-        <button onclick="resetData()">
+    <button onclick="resetData()">
 
-            RESET
+        RESET
 
-        </button>
+    </button>
 
+</div>
+
+<div id="statusLine">
+
+    <div id="status">
+        READY
     </div>
 
-    <div id="statusLine">
-
-        <div id="status">
-            READY
-        </div>
-
-        <div id="timer">
-            02:00
-        </div>
-
+    <div id="timer">
+        02:20
     </div>
 
-    <div id="sensorGrid">
+</div>
 
-        <div class="sensorBox">
+<div id="sensorGrid">
 
-            <div class="label">
-                PHONE MOVEMENT ACCELERATION
-            </div>
+    <div class="sensorBox">
 
-            <div class="value" id="accelDisplay">
-
-                0
-
-            </div>
-
+        <div class="label">
+            PHONE MOVEMENT ACCELERATION
         </div>
 
-        <div class="sensorBox">
+        <div class="value"
+            id="accelDisplay">
 
-            <div class="label">
-                PHONE ROTATION MOVEMENT
-            </div>
-
-            <div class="value" id="gyroDisplay">
-
-                0
-
-            </div>
-
-        </div>
-
-        <div class="sensorBox">
-
-            <div class="label">
-                DEVICE ORIENTATION ANGLE
-            </div>
-
-            <div class="value" id="orientationDisplay">
-
-                0
-
-            </div>
-
-        </div>
-
-        <div class="sensorBox">
-
-            <div class="label">
-                MICRO MOVEMENT VARIABILITY
-            </div>
-
-            <div class="value" id="variabilityDisplay">
-
-                0
-
-            </div>
-
-        </div>
-
-        <div class="sensorBox">
-
-            <div class="label">
-                AMBIENT HUMAN VOICE PRESENCE
-            </div>
-
-            <div class="value" id="voiceDisplay">
-
-                NO
-
-            </div>
-
-        </div>
-
-        <div class="sensorBox">
-
-            <div class="label">
-                AMBIENT SOUND COMPLEXITY
-            </div>
-
-            <div class="value" id="soundDisplay">
-
-                0
-
-            </div>
+            0
 
         </div>
 
     </div>
 
-    <div id="instructions">
+    <div class="sensorBox">
 
-        <b>Condition A: HIGH AWARENESS</b><br>
-        Continuously remain aware of yourself using TikTok.
-        Notice every swipe, your body posture, urges to continue,
-        and the passing of time.<br><br>
+        <div class="label">
+            PHONE ROTATION MOVEMENT
+        </div>
 
-        <b>Condition B: IMMERSED</b><br>
-        Use TikTok naturally and allow yourself to become fully immersed
-        in the feed without actively monitoring yourself.
+        <div class="value"
+            id="gyroDisplay">
+
+            0
+
+        </div>
 
     </div>
 
-    <script>
+    <div class="sensorBox">
 
-        // -----------------------------------------------------
-        // GLOBALS
-        // -----------------------------------------------------
+        <div class="label">
+            DEVICE ORIENTATION ANGLE
+        </div>
 
-        let recording = false;
+        <div class="value"
+            id="orientationDisplay">
 
-        let recordingStartTime = 0;
+            0
 
-        let recordingDuration = 120000;
+        </div>
 
-        let currentCondition = "";
+    </div>
 
-        let sessionData = [];
+    <div class="sensorBox">
 
-        let smoothAccel = 0;
+        <div class="label">
+            MICRO MOVEMENT VARIABILITY
+        </div>
 
-        let smoothGyro = 0;
+        <div class="value"
+            id="variabilityDisplay">
 
-        let accelHistory = [];
+            0
 
-        let movementVariability = 0;
+        </div>
 
-        let ambientVoicePresence = false;
+    </div>
 
-        let ambientSoundComplexity = 0;
+    <div class="sensorBox">
 
-        // -----------------------------------------------------
-        // UI
-        // -----------------------------------------------------
+        <div class="label">
+            AMBIENT HUMAN VOICE PRESENCE
+        </div>
 
-        const status =
-            document.getElementById("status");
+        <div class="value"
+            id="voiceDisplay">
 
-        const timer =
-            document.getElementById("timer");
+            NO
 
-        const accelDisplay =
-            document.getElementById("accelDisplay");
+        </div>
 
-        const gyroDisplay =
-            document.getElementById("gyroDisplay");
+    </div>
 
-        const orientationDisplay =
-            document.getElementById("orientationDisplay");
+    <div class="sensorBox">
 
-        const variabilityDisplay =
-            document.getElementById("variabilityDisplay");
+        <div class="label">
+            AMBIENT SOUND COMPLEXITY
+        </div>
 
-        const voiceDisplay =
-            document.getElementById("voiceDisplay");
+        <div class="value"
+            id="soundDisplay">
 
-        const soundDisplay =
-            document.getElementById("soundDisplay");
+            0
 
-        // -----------------------------------------------------
-        // SENSOR PERMISSIONS
-        // -----------------------------------------------------
+        </div>
 
-        async function enableSensors() {
+    </div>
 
-            try {
+</div>
 
-                // iOS motion permission
+<script>
 
-                if (
+// -----------------------------------------------------
+// GLOBALS
+// -----------------------------------------------------
 
-                    typeof DeviceMotionEvent !==
-                    "undefined"
+let recording = false;
 
-                    &&
+let recordingStartTime = 0;
 
-                    typeof DeviceMotionEvent
-                        .requestPermission ===
-                    "function"
+// 2 MIN 20 SEC TOTAL
 
-                ) {
+let recordingDuration = 140000;
 
-                    await DeviceMotionEvent
-                        .requestPermission();
+let currentCondition = "";
 
-                }
+let sessionData = [];
 
-                // microphone permission
+let smoothAccel = 0;
 
-                await startMicrophone();
+let smoothGyro = 0;
 
-            }
+let accelHistory = [];
 
-            catch (err) {
+let movementVariability = 0;
 
-                console.log(err);
+let ambientVoicePresence = false;
 
-            }
+let ambientSoundComplexity = 0;
 
-        }
+// -----------------------------------------------------
+// UI
+// -----------------------------------------------------
 
-        // -----------------------------------------------------
-        // START RECORDING
-        // -----------------------------------------------------
+const status =
+    document.getElementById("status");
 
-        async function startRecording(condition) {
+const timer =
+    document.getElementById("timer");
 
-            await enableSensors();
+const accelDisplay =
+    document.getElementById("accelDisplay");
 
-            sessionData = [];
+const gyroDisplay =
+    document.getElementById("gyroDisplay");
 
-            currentCondition = condition;
+const orientationDisplay =
+    document.getElementById("orientationDisplay");
 
-            recording = true;
+const variabilityDisplay =
+    document.getElementById("variabilityDisplay");
 
-            recordingStartTime =
-                Date.now();
+const voiceDisplay =
+    document.getElementById("voiceDisplay");
 
-            status.innerText =
-                "RECORDING";
+const soundDisplay =
+    document.getElementById("soundDisplay");
 
-            setTimeout(() => {
+// -----------------------------------------------------
+// SENSOR PERMISSIONS
+// -----------------------------------------------------
 
-                recording = false;
+async function enableSensors() {
 
-                status.innerText =
-                    "COMPLETE";
+    try {
 
-            }, recordingDuration);
+        if (
 
-        }
+            typeof DeviceMotionEvent !==
+            "undefined"
 
-        // -----------------------------------------------------
-        // RESET
-        // -----------------------------------------------------
+            &&
 
-        function resetData() {
+            typeof DeviceMotionEvent
+                .requestPermission ===
+            "function"
 
-            const ok = confirm(
-                "Reset all recordings?"
-            );
+        ) {
 
-            if (!ok)
-                return;
-
-            sessionData = [];
-
-            recording = false;
-
-            status.innerText =
-                "READY";
+            await DeviceMotionEvent
+                .requestPermission();
 
         }
 
-        // -----------------------------------------------------
-        // DOWNLOAD
-        // -----------------------------------------------------
+        await startMicrophone();
 
-        function downloadData() {
+    }
 
-            const blob = new Blob(
+    catch(err) {
 
-                [
-                    JSON.stringify(
-                        sessionData,
-                        null,
-                        2
-                    )
-                ],
+        console.log(err);
 
-                {
-                    type: "application/json"
-                }
+    }
 
-            );
+}
 
-            const a =
-                document.createElement("a");
+// -----------------------------------------------------
+// START RECORDING
+// -----------------------------------------------------
 
-            a.href =
-                URL.createObjectURL(blob);
+async function startRecording(condition) {
 
-            a.download =
-                `embodied_tiktok_sensing.json`;
+    await enableSensors();
 
-            a.click();
+    sessionData = [];
 
-        }
+    currentCondition = condition;
 
-        // -----------------------------------------------------
-        // DEVICE MOTION
-        // -----------------------------------------------------
+    recording = true;
 
-        window.addEventListener(
+    recordingStartTime =
+        Date.now();
 
-            "devicemotion",
+    status.innerText =
+        "RECORDING";
 
-            e => {
+    setTimeout(() => {
 
-                const acc =
+        recording = false;
 
-                    e.accelerationIncludingGravity
-                    ||
+        status.innerText =
+            "COMPLETE";
 
-                    e.acceleration;
+    }, recordingDuration);
 
-                if (acc) {
+}
 
-                    const x = acc.x || 0;
-                    const y = acc.y || 0;
-                    const z = acc.z || 0;
+// -----------------------------------------------------
+// RESET
+// -----------------------------------------------------
 
-                    const magnitude = Math.sqrt(
+function resetData() {
 
-                        x * x +
-                        y * y +
-                        z * z
-
-                    );
-
-                    smoothAccel =
-
-                        smoothAccel * 0.9
-                        + magnitude * 0.1;
-
-                    accelHistory.push(
-                        smoothAccel
-                    );
-
-                    if (
-                        accelHistory.length > 30
-                    ) {
-
-                        accelHistory.shift();
-
-                    }
-
-                    movementVariability =
-                        calculateVariance(
-                            accelHistory
-                        );
-
-                }
-
-                const rot =
-                    e.rotationRate;
-
-                if (rot) {
-
-                    const a = rot.alpha || 0;
-                    const b = rot.beta || 0;
-                    const g = rot.gamma || 0;
-
-                    const gyroMagnitude = Math.sqrt(
-
-                        a * a +
-                        b * b +
-                        g * g
-
-                    );
-
-                    smoothGyro =
-
-                        smoothGyro * 0.9
-                        + gyroMagnitude * 0.1;
-
-                }
-
-                accelDisplay.innerText =
-                    smoothAccel.toFixed(2);
-
-                gyroDisplay.innerText =
-                    smoothGyro.toFixed(2);
-
-                orientationDisplay.innerText =
-                    getOrientation();
-
-                variabilityDisplay.innerText =
-                    movementVariability.toFixed(2);
-
-            }
-
+    const ok =
+        confirm(
+            "Reset all recordings?"
         );
 
-        // -----------------------------------------------------
-        // ORIENTATION
-        // -----------------------------------------------------
+    if (!ok)
+        return;
 
-        function getOrientation() {
+    sessionData = [];
+
+    recording = false;
+
+    status.innerText =
+        "READY";
+
+}
+
+// -----------------------------------------------------
+// DOWNLOAD
+// -----------------------------------------------------
+
+function downloadData() {
+
+    // ---------------------------------
+    // REMOVE FIRST 10s + LAST 10s
+    // ---------------------------------
+
+    const trimmedData =
+
+        sessionData.filter(entry => {
+
+            return (
+
+                entry.sessionTimeElapsedMilliseconds
+                >= 10000
+
+                &&
+
+                entry.sessionTimeElapsedMilliseconds
+                <= 130000
+
+            );
+
+        });
+
+    // ---------------------------------
+    // DOWNLOAD
+    // ---------------------------------
+
+    const blob = new Blob(
+
+        [
+            JSON.stringify(
+                trimmedData,
+                null,
+                2
+            )
+        ],
+
+        {
+            type: "application/json"
+        }
+
+    );
+
+    const a =
+        document.createElement("a");
+
+    a.href =
+        URL.createObjectURL(blob);
+
+    a.download =
+        `embodied_tiktok_sensing_trimmed.json`;
+
+    a.click();
+
+}
+
+// -----------------------------------------------------
+// DEVICE MOTION
+// -----------------------------------------------------
+
+window.addEventListener(
+
+    "devicemotion",
+
+    e => {
+
+        const acc =
+
+            e.accelerationIncludingGravity
+            ||
+
+            e.acceleration;
+
+        if (acc) {
+
+            const x = acc.x || 0;
+            const y = acc.y || 0;
+            const z = acc.z || 0;
+
+            const magnitude = Math.sqrt(
+
+                x*x +
+                y*y +
+                z*z
+
+            );
+
+            smoothAccel =
+
+                smoothAccel * 0.9
+                + magnitude * 0.1;
+
+            accelHistory.push(
+                smoothAccel
+            );
 
             if (
-                screen.orientation
+                accelHistory.length > 30
             ) {
 
-                return screen
-                    .orientation
-                    .angle;
+                accelHistory.shift();
 
             }
 
-            return window.orientation || 0;
+            movementVariability =
+                calculateVariance(
+                    accelHistory
+                );
 
         }
 
-        // -----------------------------------------------------
-        // VARIANCE
-        // -----------------------------------------------------
+        const rot =
+            e.rotationRate;
 
-        function calculateVariance(arr) {
+        if (rot) {
 
-            if (arr.length < 2)
-                return 0;
+            const a = rot.alpha || 0;
+            const b = rot.beta || 0;
+            const g = rot.gamma || 0;
 
-            const mean =
+            const gyroMagnitude = Math.sqrt(
 
-                arr.reduce(
-                    (a, b) => a + b,
-                    0
-                ) / arr.length;
+                a*a +
+                b*b +
+                g*g
 
-            const variance =
+            );
 
-                arr.reduce(
+            smoothGyro =
 
-                    (a, b) => {
-
-                        return a +
-                            Math.pow(
-                                b - mean,
-                                2
-                            );
-
-                    },
-
-                    0
-
-                ) / arr.length;
-
-            return variance;
+                smoothGyro * 0.9
+                + gyroMagnitude * 0.1;
 
         }
 
-        // -----------------------------------------------------
-        // MICROPHONE ANALYSIS
-        // -----------------------------------------------------
+        accelDisplay.innerText =
+            smoothAccel.toFixed(2);
 
-        async function startMicrophone() {
+        gyroDisplay.innerText =
+            smoothGyro.toFixed(2);
 
-            try {
+        orientationDisplay.innerText =
+            getOrientation();
 
-                const stream =
+        variabilityDisplay.innerText =
+            movementVariability.toFixed(2);
 
-                    await navigator
-                        .mediaDevices
-                        .getUserMedia({
+    }
 
-                            audio: true
+);
 
-                        });
+// -----------------------------------------------------
+// ORIENTATION
+// -----------------------------------------------------
 
-                const audioContext =
-                    new AudioContext();
+function getOrientation() {
 
-                const source =
-                    audioContext
-                        .createMediaStreamSource(
-                            stream
-                        );
+    if (
+        screen.orientation
+    ) {
 
-                const analyser =
-                    audioContext
-                        .createAnalyser();
+        return screen
+            .orientation
+            .angle;
 
-                analyser.fftSize = 512;
+    }
 
-                source.connect(analyser);
+    return window.orientation || 0;
 
-                const data =
-                    new Uint8Array(
-                        analyser.frequencyBinCount
+}
+
+// -----------------------------------------------------
+// VARIANCE
+// -----------------------------------------------------
+
+function calculateVariance(arr) {
+
+    if (arr.length < 2)
+        return 0;
+
+    const mean =
+
+        arr.reduce(
+            (a,b)=>a+b,
+            0
+        ) / arr.length;
+
+    const variance =
+
+        arr.reduce(
+
+            (a,b)=> {
+
+                return a +
+                    Math.pow(
+                        b - mean,
+                        2
                     );
 
-                setInterval(() => {
+            },
 
-                    analyser
-                        .getByteFrequencyData(
-                            data
-                        );
+            0
 
-                    let total = 0;
+        ) / arr.length;
 
-                    let activeBands = 0;
+    return variance;
 
-                    for (
-                        let i = 0;
-                        i < data.length;
-                        i++
-                    ) {
+}
 
-                        total += data[i];
+// -----------------------------------------------------
+// MICROPHONE ANALYSIS
+// -----------------------------------------------------
 
-                        if (
-                            data[i] > 35
-                        ) {
+async function startMicrophone() {
 
-                            activeBands++;
+    try {
 
-                        }
+        const stream =
 
-                    }
+            await navigator
+                .mediaDevices
+                .getUserMedia({
 
-                    const average =
-                        total / data.length;
+                    audio: true
 
-                    ambientVoicePresence =
-                        average > 22;
+                });
 
-                    ambientSoundComplexity =
-                        activeBands /
-                        data.length;
+        const audioContext =
+            new AudioContext();
 
-                    voiceDisplay.innerText =
+        const source =
+            audioContext
+                .createMediaStreamSource(
+                    stream
+                );
 
-                        ambientVoicePresence
-                            ? "YES"
-                            : "NO";
+        const analyser =
+            audioContext
+                .createAnalyser();
 
-                    soundDisplay.innerText =
+        analyser.fftSize = 512;
 
-                        ambientSoundComplexity
-                            .toFixed(2);
+        source.connect(analyser);
 
-                }, 400);
-
-            }
-
-            catch (err) {
-
-                console.log(err);
-
-            }
-
-        }
-
-        // -----------------------------------------------------
-        // LOGGING
-        // -----------------------------------------------------
+        const data =
+            new Uint8Array(
+                analyser.frequencyBinCount
+            );
 
         setInterval(() => {
 
-            if (!recording)
-                return;
+            analyser
+                .getByteFrequencyData(
+                    data
+                );
 
-            const timestamp =
-                Date.now();
+            let total = 0;
 
-            const elapsed =
+            let activeBands = 0;
 
-                timestamp
-                - recordingStartTime;
+            for (
+                let i = 0;
+                i < data.length;
+                i++
+            ) {
 
-            const batterySupported =
+                total += data[i];
 
-                navigator.getBattery
-                    ? true
-                    : false;
+                if (
+                    data[i] > 35
+                ) {
 
-            const entry = {
+                    activeBands++;
 
-                // ---------------------------------
-                // SESSION
-                // ---------------------------------
-
-                timestamp:
-
-                    timestamp,
-
-                recordingCondition:
-
-                    currentCondition,
-
-                sessionTimeElapsedMilliseconds:
-
-                    elapsed,
-
-                // ---------------------------------
-                // BODY + DEVICE
-                // ---------------------------------
-
-                phoneMovementAcceleration:
-
-                    smoothAccel,
-
-                phoneRotationMovement:
-
-                    smoothGyro,
-
-                microMovementVariability:
-
-                    movementVariability,
-
-                deviceOrientationAngle:
-
-                    getOrientation(),
-
-                // ---------------------------------
-                // ENVIRONMENT
-                // ---------------------------------
-
-                ambientHumanVoicePresence:
-
-                    ambientVoicePresence,
-
-                ambientSoundComplexity:
-
-                    ambientSoundComplexity,
-
-                // ---------------------------------
-                // CONTEXT
-                // ---------------------------------
-
-                currentTimeOfDay:
-
-                    new Date()
-                        .toLocaleTimeString(),
-
-                screenWidthPixels:
-
-                    window.innerWidth,
-
-                screenHeightPixels:
-
-                    window.innerHeight,
-
-                batteryAPIAvailable:
-
-                    batterySupported,
-
-                // ---------------------------------
-                // EXPERIMENT LABEL
-                // ---------------------------------
-
-                intendedAttentionalState:
-
-                    currentCondition
-
-            };
-
-            sessionData.push(entry);
-
-            console.log(entry);
-
-        }, 250);
-
-        // -----------------------------------------------------
-        // TIMER
-        // -----------------------------------------------------
-
-        setInterval(() => {
-
-            if (!recording) {
-
-                timer.innerText =
-                    "02:00";
-
-                return;
+                }
 
             }
 
-            const elapsed =
+            const average =
+                total / data.length;
 
-                Date.now()
-                - recordingStartTime;
+            ambientVoicePresence =
+                average > 22;
 
-            const remaining =
+            ambientSoundComplexity =
+                activeBands /
+                data.length;
 
-                Math.max(
-                    0,
-                    recordingDuration - elapsed
-                );
+            voiceDisplay.innerText =
 
-            const totalSeconds =
+                ambientVoicePresence
+                    ? "YES"
+                    : "NO";
 
-                Math.floor(
-                    remaining / 1000
-                );
+            soundDisplay.innerText =
 
-            const minutes =
+                ambientSoundComplexity
+                    .toFixed(2);
 
-                String(
-                    Math.floor(
-                        totalSeconds / 60
-                    )
-                ).padStart(2, "0");
+        }, 400);
 
-            const seconds =
+    }
 
-                String(
-                    totalSeconds % 60
-                ).padStart(2, "0");
+    catch(err) {
 
-            timer.innerText =
+        console.log(err);
 
-                `${minutes}:${seconds}`;
+    }
 
-        }, 100);
+}
 
-    </script>
+// -----------------------------------------------------
+// LOGGING
+// -----------------------------------------------------
+
+setInterval(() => {
+
+    if (!recording)
+        return;
+
+    const timestamp =
+        Date.now();
+
+    const elapsed =
+
+        timestamp
+        - recordingStartTime;
+
+    const entry = {
+
+        // ---------------------------------
+        // SESSION
+        // ---------------------------------
+
+        timestamp:
+
+            timestamp,
+
+        recordingCondition:
+
+            currentCondition,
+
+        sessionTimeElapsedMilliseconds:
+
+            elapsed,
+
+        // ---------------------------------
+        // BODY + DEVICE
+        // ---------------------------------
+
+        phoneMovementAcceleration:
+
+            smoothAccel,
+
+        phoneRotationMovement:
+
+            smoothGyro,
+
+        microMovementVariability:
+
+            movementVariability,
+
+        deviceOrientationAngle:
+
+            getOrientation(),
+
+        // ---------------------------------
+        // ENVIRONMENT
+        // ---------------------------------
+
+        ambientHumanVoicePresence:
+
+            ambientVoicePresence,
+
+        ambientSoundComplexity:
+
+            ambientSoundComplexity,
+
+        // ---------------------------------
+        // CONTEXT
+        // ---------------------------------
+
+        currentTimeOfDay:
+
+            new Date()
+                .toLocaleTimeString(),
+
+        screenWidthPixels:
+
+            window.innerWidth,
+
+        screenHeightPixels:
+
+            window.innerHeight,
+
+        // ---------------------------------
+        // LABEL
+        // ---------------------------------
+
+        intendedAttentionalState:
+
+            currentCondition
+
+    };
+
+    sessionData.push(entry);
+
+    console.log(entry);
+
+}, 250);
+
+// -----------------------------------------------------
+// TIMER
+// -----------------------------------------------------
+
+setInterval(() => {
+
+    if (!recording) {
+
+        timer.innerText =
+            "02:20";
+
+        return;
+
+    }
+
+    const elapsed =
+
+        Date.now()
+        - recordingStartTime;
+
+    const remaining =
+
+        Math.max(
+            0,
+            recordingDuration - elapsed
+        );
+
+    const totalSeconds =
+
+        Math.floor(
+            remaining / 1000
+        );
+
+    const minutes =
+
+        String(
+            Math.floor(
+                totalSeconds / 60
+            )
+        ).padStart(2, "0");
+
+    const seconds =
+
+        String(
+            totalSeconds % 60
+        ).padStart(2, "0");
+
+    timer.innerText =
+
+        `${minutes}:${seconds}`;
+
+}, 100);
+
+</script>
 
 </body>
 
