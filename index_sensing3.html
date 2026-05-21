@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8" />
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+/>
+
+<title>
+Embodied Attention Sensing Recorder
+</title>
+
+<style>
+
+html,
+body {
+
+    margin: 0;
+    padding: 0;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+    background: black;
+
+    color: white;
+
+    font-family: sans-serif;
+
+}
+
+body {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 12px;
+
+    box-sizing: border-box;
+
+}
+
+#statusLine {
+
+    width: 100%;
+    max-width: 700px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    font-size: 22px;
+
+    font-weight: bold;
+
+}
+
+#controls {
+
+    width: 100%;
+    max-width: 700px;
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr 1fr;
+
+    gap: 10px;
+
+}
+
+button {
+
+    min-height: 72px;
+
+    border: none;
+
+    border-radius: 18px;
+
+    font-size: 16px;
+
+    font-weight: bold;
+
+    background: white;
+
+    color: black;
+
+}
+
+button:active {
+
+    transform: scale(0.98);
+
+}
+
+#sensorGrid {
+
+    width: 100%;
+    max-width: 700px;
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 10px;
+
+}
+
+.sensorBox {
+
+    background: rgba(255,255,255,0.08);
+
+    border-radius: 16px;
+
+    padding: 12px;
+
+}
+
+.label {
+
+    font-size: 11px;
+
+    opacity: 0.7;
+
+    margin-bottom: 5px;
+
+}
+
+.value {
+
+    font-size: 22px;
+
+    font-weight: bold;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="statusLine">
+
+    <div id="status">
+        READY
+    </div>
+
+    <div id="timer">
+        02:20
+    </div>
+
+</div>
+
+<div id="controls">
+
+    <button
+        onclick="startRecording('high_meta_awareness')">
+
+        HIGH ATTENTION TO WORLD
+
+    </button>
+
+    <button
+        onclick="startRecording('immersed_absorption')">
+
+        HIGH ATTENTION TO SCROLL
+
+    </button>
+
+    <button onclick="togglePause()">
+
+        PAUSE
+
+    </button>
+
+    <button onclick="downloadData()">
+
+        DOWNLOAD
+
+    </button>
+
+    <button onclick="resetData()">
+
+        RESET
+
+    </button>
+
+</div>
+
+<div id="sensorGrid">
+
+    <div class="sensorBox">
+
+        <div class="label">
+            MOVEMENT ACCELERATION
+        </div>
+
+        <div
+            class="value"
+            id="accelDisplay">
+
+            0
+
+        </div>
+
+    </div>
+
+    <div class="sensorBox">
+
+        <div class="label">
+            ROTATIONAL MOVEMENT
+        </div>
+
+        <div
+            class="value"
+            id="gyroDisplay">
+
+            0
+
+        </div>
+
+    </div>
+
+    <div class="sensorBox">
+
+        <div class="label">
+            MICRO MOVEMENT VARIABILITY
+        </div>
+
+        <div
+            class="value"
+            id="variabilityDisplay">
+
+            0
+
+        </div>
+
+    </div>
+
+    <div class="sensorBox">
+
+        <div class="label">
+            PHONE FORWARD TILT
+        </div>
+
+        <div
+            class="value"
+            id="tiltForwardDisplay">
+
+            0
+
+        </div>
+
+    </div>
+
+    <div class="sensorBox">
+
+        <div class="label">
+            PHONE SIDE TILT
+        </div>
+
+        <div
+            class="value"
+            id="tiltSideDisplay">
+
+            0
+
+        </div>
+
+    </div>
+
+    <div class="sensorBox">
+
+        <div class="label">
+            AUDIO INTENSITY
+        </div>
+
+        <div
+            class="value"
+            id="audioIntensityDisplay">
+
+            0
+
+        </div>
+
+    </div>
+
+    <div class="sensorBox">
+
+        <div class="label">
+            AUDIO COMPLEXITY
+        </div>
+
+        <div
+            class="value"
+            id="audioComplexityDisplay">
+
+            0
+
+        </div>
+
+    </div>
+
+    <div class="sensorBox">
+
+        <div class="label">
+            ENVIRONMENTAL VOLATILITY
+        </div>
+
+        <div
+            class="value"
+            id="volatilityDisplay">
+
+            0
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+// -----------------------------------------------------
+// GLOBALS
+// -----------------------------------------------------
+
+let recording = false;
+
+let paused = false;
+
+let pauseStart = 0;
+
+let totalPausedTime = 0;
+
+let recordingStartTime = 0;
+
+let recordingDuration = 140000;
+
+let currentCondition = "";
+
+let sessionData = [];
+
+// ------------------------------------
+// MOTION
+// ------------------------------------
+
+let smoothAccel = 0;
+
+let smoothGyro = 0;
+
+let accelHistory = [];
+
+let movementVariability = 0;
+
+// ------------------------------------
+// ORIENTATION
+// ------------------------------------
+
+let tiltForward = 0;
+let tiltSide = 0;
+
+// ------------------------------------
+// AUDIO
+// ------------------------------------
+
+let audioIntensity = 0;
+
+let audioComplexity = 0;
+
+let environmentalVolatility = 0;
+
+let audioHistory = [];
+
+// -----------------------------------------------------
+// UI
+// -----------------------------------------------------
+
+const status =
+    document.getElementById("status");
+
+const timer =
+    document.getElementById("timer");
+
+const accelDisplay =
+    document.getElementById("accelDisplay");
+
+const gyroDisplay =
+    document.getElementById("gyroDisplay");
+
+const variabilityDisplay =
+    document.getElementById("variabilityDisplay");
+
+const tiltForwardDisplay =
+    document.getElementById("tiltForwardDisplay");
+
+const tiltSideDisplay =
+    document.getElementById("tiltSideDisplay");
+
+const audioIntensityDisplay =
+    document.getElementById("audioIntensityDisplay");
+
+const audioComplexityDisplay =
+    document.getElementById("audioComplexityDisplay");
+
+const volatilityDisplay =
+    document.getElementById("volatilityDisplay");
+
+// -----------------------------------------------------
+// ENABLE SENSORS
+// -----------------------------------------------------
+
+async function enableSensors() {
+
+    try {
+
+        if (
+
+            typeof DeviceMotionEvent !==
+            "undefined"
+
+            &&
+
+            typeof DeviceMotionEvent
+                .requestPermission ===
+            "function"
+
+        ) {
+
+            await DeviceMotionEvent
+                .requestPermission();
+
+        }
+
+        if (
+
+            typeof DeviceOrientationEvent !==
+            "undefined"
+
+            &&
+
+            typeof DeviceOrientationEvent
+                .requestPermission ===
+            "function"
+
+        ) {
+
+            await DeviceOrientationEvent
+                .requestPermission();
+
+        }
+
+        await startMicrophone();
+
+    }
+
+    catch(err) {
+
+        console.log(err);
+
+    }
+
+}
+
+// -----------------------------------------------------
+// START RECORDING
+// -----------------------------------------------------
+
+async function startRecording(condition) {
+
+    await enableSensors();
+
+    sessionData = [];
+
+    currentCondition = condition;
+
+    recording = true;
+
+    paused = false;
+
+    totalPausedTime = 0;
+
+    recordingStartTime =
+        Date.now();
+
+    status.innerText =
+        "RECORDING";
+
+    setTimeout(() => {
+
+        recording = false;
+
+        status.innerText =
+            "COMPLETE";
+
+    }, recordingDuration);
+
+}
+
+// -----------------------------------------------------
+// PAUSE
+// -----------------------------------------------------
+
+function togglePause() {
+
+    if (!recording)
+        return;
+
+    paused = !paused;
+
+    if (paused) {
+
+        pauseStart =
+            Date.now();
+
+        status.innerText =
+            "PAUSED";
+
+    }
+
+    else {
+
+        totalPausedTime +=
+            Date.now() - pauseStart;
+
+        status.innerText =
+            "RECORDING";
+
+    }
+
+}
+
+// -----------------------------------------------------
+// RESET
+// -----------------------------------------------------
+
+function resetData() {
+
+    const ok =
+        confirm(
+            "Reset recordings?"
+        );
+
+    if (!ok)
+        return;
+
+    sessionData = [];
+
+    recording = false;
+
+    paused = false;
+
+    status.innerText =
+        "READY";
+
+}
+
+// -----------------------------------------------------
+// DOWNLOAD
+// -----------------------------------------------------
+
+function downloadData() {
+
+    const trimmedData =
+
+        sessionData.filter(entry => {
+
+            return (
+
+                entry.sessionTimeElapsedMilliseconds
+                >= 10000
+
+                &&
+
+                entry.sessionTimeElapsedMilliseconds
+                <= 130000
+
+            );
+
+        });
+
+    const blob = new Blob(
+
+        [
+            JSON.stringify(
+                trimmedData,
+                null,
+                2
+            )
+        ],
+
+        {
+            type: "application/json"
+        }
+
+    );
+
+    const a =
+        document.createElement("a");
+
+    a.href =
+        URL.createObjectURL(blob);
+
+    a.download =
+        `embodied_attention_data.json`;
+
+    a.click();
+
+}
+
+// -----------------------------------------------------
+// DEVICE MOTION
+// -----------------------------------------------------
+
+window.addEventListener(
+
+    "devicemotion",
+
+    e => {
+
+        const acc =
+
+            e.accelerationIncludingGravity
+            ||
+
+            e.acceleration;
+
+        if (acc) {
+
+            const x = acc.x || 0;
+            const y = acc.y || 0;
+            const z = acc.z || 0;
+
+            const magnitude = Math.sqrt(
+
+                x*x +
+                y*y +
+                z*z
+
+            );
+
+            smoothAccel =
+
+                smoothAccel * 0.9
+                + magnitude * 0.1;
+
+            accelHistory.push(
+                smoothAccel
+            );
+
+            if (
+                accelHistory.length > 30
+            ) {
+
+                accelHistory.shift();
+
+            }
+
+            movementVariability =
+                calculateVariance(
+                    accelHistory
+                );
+
+        }
+
+        const rot =
+            e.rotationRate;
+
+        if (rot) {
+
+            const a = rot.alpha || 0;
+            const b = rot.beta || 0;
+            const g = rot.gamma || 0;
+
+            const gyroMagnitude = Math.sqrt(
+
+                a*a +
+                b*b +
+                g*g
+
+            );
+
+            smoothGyro =
+
+                smoothGyro * 0.9
+                + gyroMagnitude * 0.1;
+
+        }
+
+        accelDisplay.innerText =
+            smoothAccel.toFixed(2);
+
+        gyroDisplay.innerText =
+            smoothGyro.toFixed(2);
+
+        variabilityDisplay.innerText =
+            movementVariability.toFixed(4);
+
+    }
+
+);
+
+// -----------------------------------------------------
+// DEVICE ORIENTATION
+// -----------------------------------------------------
+
+window.addEventListener(
+
+    "deviceorientation",
+
+    e => {
+
+        tiltForward =
+            e.beta || 0;
+
+        tiltSide =
+            e.gamma || 0;
+
+        tiltForwardDisplay.innerText =
+            tiltForward.toFixed(1);
+
+        tiltSideDisplay.innerText =
+            tiltSide.toFixed(1);
+
+    }
+
+);
+
+// -----------------------------------------------------
+// VARIANCE
+// -----------------------------------------------------
+
+function calculateVariance(arr) {
+
+    if (arr.length < 2)
+        return 0;
+
+    const mean =
+
+        arr.reduce(
+            (a,b)=>a+b,
+            0
+        ) / arr.length;
+
+    const variance =
+
+        arr.reduce(
+
+            (a,b)=> {
+
+                return a +
+                    Math.pow(
+                        b - mean,
+                        2
+                    );
+
+            },
+
+            0
+
+        ) / arr.length;
+
+    return variance;
+
+}
+
+// -----------------------------------------------------
+// MICROPHONE
+// -----------------------------------------------------
+
+async function startMicrophone() {
+
+    try {
+
+        const stream =
+
+            await navigator
+                .mediaDevices
+                .getUserMedia({
+
+                    audio: true
+
+                });
+
+        const audioContext =
+            new AudioContext();
+
+        const source =
+            audioContext
+                .createMediaStreamSource(
+                    stream
+                );
+
+        const analyser =
+            audioContext
+                .createAnalyser();
+
+        analyser.fftSize = 512;
+
+        source.connect(analyser);
+
+        const data =
+            new Uint8Array(
+                analyser.frequencyBinCount
+            );
+
+        setInterval(() => {
+
+            analyser
+                .getByteFrequencyData(
+                    data
+                );
+
+            let total = 0;
+
+            let activeBands = 0;
+
+            for (
+                let i = 0;
+                i < data.length;
+                i++
+            ) {
+
+                total += data[i];
+
+                if (
+                    data[i] > 25
+                ) {
+
+                    activeBands++;
+
+                }
+
+            }
+
+            const average =
+                total / data.length;
+
+            // ---------------------------
+            // AUDIO INTENSITY
+            // 0 → 100
+            // ---------------------------
+
+            audioIntensity =
+
+                Math.min(
+                    100,
+                    average
+                );
+
+            // ---------------------------
+            // AUDIO COMPLEXITY
+            // 0 → 100
+            // ---------------------------
+
+            audioComplexity =
+
+                (
+                    activeBands /
+                    data.length
+                ) * 100;
+
+            // ---------------------------
+            // ENVIRONMENTAL VOLATILITY
+            // changing sound patterns
+            // ---------------------------
+
+            audioHistory.push(
+                audioIntensity
+            );
+
+            if (
+                audioHistory.length > 20
+            ) {
+
+                audioHistory.shift();
+
+            }
+
+            environmentalVolatility =
+
+                calculateVariance(
+                    audioHistory
+                );
+
+            // ---------------------------
+            // UI
+            // ---------------------------
+
+            audioIntensityDisplay.innerText =
+
+                audioIntensity
+                    .toFixed(1);
+
+            audioComplexityDisplay.innerText =
+
+                audioComplexity
+                    .toFixed(1);
+
+            volatilityDisplay.innerText =
+
+                environmentalVolatility
+                    .toFixed(2);
+
+        }, 250);
+
+    }
+
+    catch(err) {
+
+        console.log(err);
+
+    }
+
+}
+
+// -----------------------------------------------------
+// LOGGING
+// -----------------------------------------------------
+
+setInterval(() => {
+
+    if (!recording || paused)
+        return;
+
+    const timestamp =
+        Date.now();
+
+    const elapsed =
+
+        timestamp
+        - recordingStartTime
+        - totalPausedTime;
+
+    const entry = {
+
+        // ---------------------------------
+        // SESSION
+        // ---------------------------------
+
+        timestamp:
+
+            timestamp,
+
+        recordingCondition:
+
+            currentCondition,
+
+        sessionTimeElapsedMilliseconds:
+
+            elapsed,
+
+        // ---------------------------------
+        // BODY + DEVICE
+        // ---------------------------------
+
+        phoneMovementAcceleration:
+
+            smoothAccel,
+
+        phoneRotationMovement:
+
+            smoothGyro,
+
+        microMovementVariability:
+
+            movementVariability,
+
+        phoneTiltForward:
+
+            tiltForward,
+
+        phoneTiltSide:
+
+            tiltSide,
+
+        // ---------------------------------
+        // ENVIRONMENT
+        // ---------------------------------
+
+        ambientAudioIntensity:
+
+            audioIntensity,
+
+        ambientSpectralComplexity:
+
+            audioComplexity,
+
+        environmentalVolatility:
+
+            environmentalVolatility,
+
+        // ---------------------------------
+        // CONTEXT
+        // ---------------------------------
+
+        currentTimeOfDay:
+
+            new Date()
+                .toLocaleTimeString(),
+
+        screenWidthPixels:
+
+            window.innerWidth,
+
+        screenHeightPixels:
+
+            window.innerHeight,
+
+        // ---------------------------------
+        // LABEL
+        // ---------------------------------
+
+        intendedAttentionalState:
+
+            currentCondition
+
+    };
+
+    sessionData.push(entry);
+
+    console.log(entry);
+
+}, 250);
+
+// -----------------------------------------------------
+// TIMER
+// -----------------------------------------------------
+
+setInterval(() => {
+
+    if (!recording) {
+
+        timer.innerText =
+            "02:20";
+
+        return;
+
+    }
+
+    if (paused)
+        return;
+
+    const elapsed =
+
+        Date.now()
+        - recordingStartTime
+        - totalPausedTime;
+
+    const remaining =
+
+        Math.max(
+            0,
+            recordingDuration - elapsed
+        );
+
+    const totalSeconds =
+
+        Math.floor(
+            remaining / 1000
+        );
+
+    const minutes =
+
+        String(
+            Math.floor(
+                totalSeconds / 60
+            )
+        ).padStart(2, "0");
+
+    const seconds =
+
+        String(
+            totalSeconds % 60
+        ).padStart(2, "0");
+
+    timer.innerText =
+
+        `${minutes}:${seconds}`;
+
+}, 100);
+
+</script>
+
+</body>
+
+</html>
